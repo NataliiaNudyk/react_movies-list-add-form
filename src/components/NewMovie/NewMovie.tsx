@@ -6,6 +6,10 @@ interface NewMovieProps {
   onAdd: (movie: Movie) => void;
 }
 
+const pattern =
+  // eslint-disable-next-line max-len
+  /^((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w-_]*)?\??(?:[-+=&;%@,.\w_]*)#?(?:[,.!/\\\w]*))?)$/;
+
 export const NewMovie: React.FC<NewMovieProps> = ({ onAdd }) => {
   // Increase the count after successful form submission
   // to reset touched status of all the `Field`s
@@ -16,25 +20,13 @@ export const NewMovie: React.FC<NewMovieProps> = ({ onAdd }) => {
   const [imdbUrl, setImdbUrl] = useState('');
   const [imdbId, setImdbId] = useState('');
 
-  const pattern =
-    // eslint-disable-next-line max-len
-    /^((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=+$,\w]+@)?[A-Za-z0-9.-]+|(?:www\.|[-;:&=+$,\w]+@)[A-Za-z0-9.-]+)((?:\/[+~%/.\w-_]*)?\??(?:[-+=&;%@,.\w_]*)#?(?:[,.!/\\\w]*))?)$/;
-
-  const data = {
-    title: title.trim(),
-    description: description.trim(),
-    imgUrl: imgUrl.trim(),
-    imdbUrl: imdbUrl.trim(),
-    imdbId: imdbId.trim(),
-  };
-
   const isFormValid = Boolean(
-    data.title &&
-      data.imgUrl &&
-      data.imdbUrl &&
-      data.imdbId &&
-      pattern.test(data.imdbUrl) &&
-      pattern.test(data.imgUrl),
+    title &&
+      imgUrl &&
+      imdbUrl &&
+      imdbId &&
+      pattern.test(imdbUrl) &&
+      pattern.test(imgUrl),
   );
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -43,13 +35,24 @@ export const NewMovie: React.FC<NewMovieProps> = ({ onAdd }) => {
       return;
     }
 
+    const data = {
+      title: title.trim(),
+      description: description.trim(),
+      imgUrl: imgUrl.trim(),
+      imdbUrl: imdbUrl.trim(),
+      imdbId: imdbId.trim(),
+    };
+
     onAdd(data);
-    setTitle('');
-    setDescription('');
-    setImgUrl('');
-    setImdbUrl('');
-    setImdbId('');
-    setCount(count + 1);
+    setCount(previousCount => {
+      setTitle('');
+      setDescription('');
+      setImgUrl('');
+      setImdbUrl('');
+      setImdbId('');
+
+      return previousCount + 1;
+    });
   }
 
   return (
